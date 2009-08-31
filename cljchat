@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+export CLASSPATH="lib/*"
+
+exec java clojure.main src/com/djwhitt/cljchat.clj
