@@ -4,47 +4,40 @@
 
 (def messages (ref ["Test message 1" "Test message 2"]))
 
-(defn html-doc
-  [title & body]
+(defn layout [& body]
   (html
     (doctype :html4)
     [:html
      [:head
-      [:title title]]
+      [:title "Clojure Chat"]]
      [:body
+      [:h1 "Welcome to Clojure Chat"]
       body]]))
 
-(defn header []
-  [:h1 "Welcome to Clojure Chat"])
+(defn render-messages []
+  (map (fn [message] [:p message]) @messages))
 
-(defn message-html []
-  (map (fn [msg] [:p msg]) @messages))
-
-(defn msg-form []
+(defn render-message-form []
   (form-to [:post "/"]
-    (text-field {:size 50} :msg)
+    (text-field {:size 50} :message)
     (submit-button "Post")))
 
-(defn main-page []
-  (html-doc "Clojure Chat"
-    (header)
-    (message-html)
-    (msg-form)))
+(defn view []
+  (layout
+    (render-messages)
+    (render-message-form)))
 
-(defn post-message [msg]
-  (do (dosync
-        (alter messages conj msg))
+(defn post-message [message]
+  (do
+    (dosync (alter messages conj message))
     (redirect-to "/")))
 
 (defroutes cljchat
-  (GET "/*"
-    (or (serve-file (params :*)) :next))
-  (GET "/"
-    (main-page))
-  (POST "/"
-    (post-message (params :msg))))
+  (GET  "/*" (or (serve-file (params :*)) :next))
+  (GET  "/"  (view))
+  (POST "/"  (post-message (params :message))))
 
-(defn run-cljchat []
+(defn run []
   (run-server {:port 8080}
     "/*" (servlet cljchat)))
 
