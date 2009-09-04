@@ -37,6 +37,8 @@
     (redirect-to "/")))
 
 (defroutes cljchat
+  (GET "/*"
+    (or (serve-file (params :*)) :next))
   (GET "/"
     (main-page))
   (POST "/"
