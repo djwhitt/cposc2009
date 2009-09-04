@@ -22,29 +22,28 @@
 
 (defn msg-form []
   (form-to [:post "/"]
-           (text-field {:size 50} :msg)
-           (submit-button "Post")))
+    (text-field {:size 50} :msg)
+    (submit-button "Post")))
 
 (defn main-page []
   (html-doc "Clojure Chat"
-            (header)
-            (message-html)
-            (msg-form)))
+    (header)
+    (message-html)
+    (msg-form)))
 
 (defn post-message [msg]
-  (do
-    (dosync
-      (alter messages conj msg))
+  (do (dosync
+        (alter messages conj msg))
     (redirect-to "/")))
 
 (defroutes cljchat
-           (GET "/"
-                (main-page))
-           (POST "/"
-                (post-message (params :msg))))
+  (GET "/"
+    (main-page))
+  (POST "/"
+    (post-message (params :msg))))
 
 (defn run-cljchat []
   (run-server {:port 8080}
-              "/*" (servlet cljchat)))
+    "/*" (servlet cljchat)))
 
 (clojure.main/repl)
