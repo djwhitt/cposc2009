@@ -29,7 +29,7 @@
 
 (defn post-message [message]
   (do
-    (dosync (alter messages conj message))
+    (dosync (commute messages conj message))
     (redirect-to "/")))
 
 (defroutes cljchat
