@@ -2,7 +2,7 @@
 
 export CLASSPATH="lib/*"
 
-cmd="java clojure.main src/com/djwhitt/cljchat.clj"
+cmd="java clojure.main"
 
 if type -t rlwrap > /dev/null; then 
     BREAK_CHARS="(){}[],^%$#@\"\";:''|\\"
