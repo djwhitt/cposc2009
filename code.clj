@@ -9,51 +9,58 @@
 
 ;{{{ Atoms
 
-"hi"   ; string
+"a string" ; string
 
-123    ; number
+\a         ; character
 
-:key   ; keyword
+123        ; integer
 
-5/72   ; ratio
+:key       ; keyword
 
-4.2    ; float
+5/72       ; ratio
 
-nil    ; nil
+4.2        ; float
 
-true   ; true
+nil        ; nil
 
-false  ; false
+true       ; true
+
+false      ; false
 
 ;}}}
 
 ;{{{ Collections
 
-'(:key 123 "string")  ; list
+'(:a :b :c)  ; list
 
-[:key 123 "string"]   ; vector
+[:a :b :c]   ; vector
 
-{:width 2, :height 4} ; map
+{:a 1, :b 2} ; map
 
-#{0 1 2 3}            ; set
-
-;}}}
-
-;{{{ Collections 2
-
-; vectors, maps, and sets are callable
-
-([\a \b \c] 0)
-
-([\a \b \c] 1)
+#{:a :b :c}  ; set
 
 ;}}}
 
-;{{{ Sequences
+;{{{ Expressions
+
+; Everything is an expression. There are no statements.
+; 
+; Expressions are either atom, (fn ...), (special ...), or (macro ...)
+
+42
+
+(* 6 7)                           ; function
+
+(if (> 2 1) "expected" "bizzaro") ; special form
+
+(and 1 2)                         ; macro
 
 ;}}}
 
 ;{{{ Truthiness
+
+; false and nil are considered false in an if expression
+; everything else is considered true (including 0)
 
 ; is there a builtin function for this?
 (defn truthy? [x]
@@ -67,18 +74,148 @@ false  ; false
 
 (truthy? 0)
 
-(truthy [1 2 3])
+(truthy? [1 2 3])
 
 (truthy? nil)
 
 (truthy? false)
 
 ;}}}
+ 
+;{{{ Collections 2
 
+; vectors, maps, and sets are callable
+
+([:a :b :c] 0)
+
+([:a :b :c] 1)
+
+({:a 1, :b 2} :a)
+
+(:a {:a 1, :b 2})
+
+(#{:a :b :c} :a)
+
+(#{:a :b :c} :d)
+
+;}}}
+
+;{{{ Sequences
+
+;}}}
+
+;{{{ Functions
+
+;}}}
+
+;{{{ Vars
+
+;}}}
+  
+;{{{ Refs and Transactions
+
+;}}}
+
+;{{{ Compojure Demo Part 1 - Hello world
 
 (ns com.djwhitt.cljchat
   (:use [clojure.contrib.pprint])
   (:use [compojure]))
+
+(defroutes cljchat
+  (GET  "/" (html [:h1 "Hello CPOSC 2009"])))
+
+(defn run []
+  (run-server {:port 8080}
+    "/*" (servlet cljchat)))
+
+;}}}
+
+;{{{ Compojure Demo Part 2 - Adding a view function
+
+(defn view []
+  (html [:h1 "Hello CPOSC 2009"]))
+
+(defroutes cljchat
+  (GET  "/" (view)))
+
+;}}}
+
+;{{{ Compojure Demo Part 3 - Rendering messages
+
+(def messages (ref ["test message 1" "test message 2"]))
+
+(defn render-messages [msgs]
+  (map #(vector :p %) msgs))
+
+(defn view [msgs]
+  (html (render-messages msgs)))
+
+(defroutes cljchat
+  (GET  "/" (view @messages)))
+
+;}}}
+
+;{{{ Compojure Demo Part 4 - Adding a form
+
+(defn render-message-form []
+  (form-to [:post "/"]
+    (text-field {:size 50} :message)
+    (submit-button "Post")))
+
+(defn view [msgs]
+  (html
+    (render-messages msgs)
+    (render-message-form)))
+
+;}}}
+
+;{{{ Compojure Demo Part 5 - Adding a post action
+
+(defn post-message [msgs msg]
+  (do
+    (dosync (commute msgs conj msg))
+    (redirect-to "/")))
+
+(defroutes cljchat
+  (GET  "/"  (view @messages))
+  (POST "/"  (post-message messages (params :message))))
+
+;}}}
+
+;{{{ Compojure Demo Part 6 - Adding a layout
+ 
+(defn layout [& body]
+  (html
+    (doctype :html4)
+    [:html
+     [:head
+      [:title "Clojure Chat"]]
+     [:body
+      [:h1 "Welcome to Clojure Chat"]
+      body]]))
+
+(defn view [msgs]
+  (layout
+    (render-messages msgs)
+    (render-message-form)))
+
+;}}}
+
+;{{{ Compojure Demo Part 7 - Adding some ajax
+
+(defroutes cljchat
+  (GET  "/*" (or (serve-file (params :*)) :next))
+  (GET  "/"  (view))
+  (POST "/"  (post-message (params :message))))
+
+; TODO: add some fancy ajax stuff
+
+;}}}
+
+;{{{ Compojure Demo - Final Code
+
+; TODO: make sure this matches the above steps
 
 (def messages (ref ["Test message 1" "Test message 2"]))
 
@@ -119,6 +256,6 @@ false  ; false
   (run-server {:port 8080}
     "/*" (servlet cljchat)))
 
-(clojure.main/repl)
+;}}}
 
 ; vim: set foldmethod=marker:
