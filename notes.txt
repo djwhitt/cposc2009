@@ -1,0 +1,4 @@
+Collections
+===========
+- Quoting required for lists
+- Collections can contain any object
