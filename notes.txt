@@ -1,4 +1,169 @@
-Collections
-===========
+### Atoms ###
+
+- Most of these probably don't need much explanation
+- But a couple are unusual
+    - Ratios
+        - integer division results in a ratio (0 precision loss)
+    - Keywords
+        - evaluate to themselves
+        - similar to symbols in Ruby or interned strings in Java
+
+### Collections ###
+
 - Quoting required for lists
 - Collections can contain any object
+
+- All immutable - anything that "changes" these actually creates a new collection
+- ... but they're still fast because the copies share structure
+
+- Lists
+    - fast access to the front
+    - modified by adding to the front
+
+- Vectors
+    - fast indexed access to any location in the vector
+    - fast adding to the end of the vector
+
+- Maps
+    - key value pairs
+    - fast indexed access by keys
+
+- Sets
+    - collections of unique values
+    - mostly used to test for membership (ie you have a set of x is y in it)
+
+### Expressions ###
+
+- EVERYTHING is an expression (has a return value)
+- TODO: add more stuff here
+
+### Truthiness ###
+
+- nil and false are considered false in conditionals everything else is true (same as Ruby)
+- Here are some examples
+
+### Collections 2 ###
+
+- indexed access happens via "get" or by calling the data structure itself
+
+### Sequences ###
+
+TODO: fill this in
+
+### Functions ###
+
+TODO: fill this in
+
+### Vars ###
+
+TODO: fill this in
+
+### Refs and Transactions ###
+
+- Immutability is nice and all, but what if you really need to share state between threads?
+- This is where Clojure's STM comes in
+- Refs
+    - A box containing something (an immutable data structure of some sort)
+    - The box can be shared between threads
+    - You can look in the box and change what's in it
+    - The changes happen in transactions
+    - If the contents of the box change while a transaction is happening the
+      transaction will be retried
+    - Reads do not require transactions and are never blocked by writes
+    - Commutes are like writes that don't care about order - also never blocked by writes
+
+- There are other types of concurrency constructs (atoms, agents) but I won't talk about them
+  because we don't really have time
+
+### Compojure Demo - 1 ###
+
+- Going to do some handwaving
+- I'm not a Compojure expert
+- The main purpose is to show incremental development and illustrate the
+  language features previously described
+
+- So here's a little "Hello world" Compojure app
+- We're going to incrementally turn it into a chat app
+
+- Setup namespace - namespaces map symbols to vars - avoid collisions and
+  Common Lisp style macros possible in a Lisp 1
+
+- ns
+    - macro
+    - creates a namespace
+    - namespaces map symbols to vars
+    - prevent name collisions
+    - use imports symbol var mappings from other namespaces
+    - should use "include" to only pull in only what's needed
+
+- defroutes
+    - macro
+    - used by Compojure to map urls to actions
+
+- html
+    - turns vectors into html
+
+- run-server
+    - starts server on a port
+    - mounts a servlet using our routes at a location
+
+### Compojure Demo - 2 ###
+
+- inline html generation in the routes kind of sucks
+- lets make a function and extract it
+
+### Compojure Demo - 3 ###
+
+- What else do we need to turn this into a web chat app?
+    - A list of messages and something to render them right?
+    - But how do we deal with multiple threads modifying the message list at the same time?
+    - We'll use a ref containing and transactions to modify the vector.
+
+- So here are the ...
+    - ref definition
+    - function to render the messages
+    - view function with message rendering added
+    - redefined routes with messages passed to view
+    
+### Compojure Demo - 4 ###
+
+- Of course a chat client is pretty boring if all you can do is view messages.
+- You want to be able to post messages too.
+- So lets add a form.
+
+- render-message-form
+    - uses some Compojure html helpers (similar to a helper in Rails)
+        - form-to
+        - text-field
+        - submit-button
+
+- We'll just add it below our message list
+
+### Compojure Demo - 5 ###
+
+- Of course just rendering the form isn't enough
+- We need to be able to do something when we post
+
+- post-message
+    - Function that describes what we want to happen when we post message
+    - Takes a ref containing the messages and the message to add
+    - Uses dosync to commute the ref adding the new message at the end
+    - Redirects after the transaction completes
+
+- We just add that to our routes and we're set
+
+- Demo it
+
+### Compojure Demo - 6 ###
+
+- So as it stands now we're generating some pretty crappy html
+- Lets clean it up a little
+
+- layout
+    - function
+    - takes n number of params as body
+    - wraps them in some typical html stuff
+
+### Compojure Demo - 7 ###
+
+- TODO: if I have time for Ajax crap
