@@ -27,6 +27,8 @@ true       ; true
 
 false      ; false
 
+a          ; symbol
+
 ;}}}
 
 ;{{{ 3 - Collections
@@ -110,15 +112,83 @@ false      ; false
 
 ;}}}
 
-;{{{ 7 - Sequences
+;{{{ 7 - Vars
+
+; map symbols to values
+(def x 1)
+
+; thread local and dynamically scoped
+(defn printx []
+  (println x))
+
+(printx)
+
+(binding [x 2]
+  (printx))
+
+(printx)
+
+; *in* *out* are examples in Clojure core
+
+(import '(java.io StringWriter))
+
+(binding [*out* (StringWriter.)]
+  (print "hello")
+  (print " ")
+  (print "world")
+  *out*)
 
 ;}}}
 
 ;{{{ 8 - Functions
 
+; functions are first class
+(def sum (fn [a b] (+ a b))
+
+; defn is a convenience macro for defining functions
+(defn product [a b]
+  (* a b))
+
+; functions can be overloaded by arity
+(defn greeting
+  ([] "Hello")
+  ([name] (str "Hello " name)))
+
 ;}}}
 
-;{{{ 9 - Vars
+;{{{ 9 - Sequences
+  
+; interface
+ 
+(first [:a :b :c])
+
+(rest [:a :b :c])
+
+(cons :d [:a :b :c])
+
+; conj - like cons but with more dwim
+
+(conj [:a :b :c] :d :e :f)
+
+(conj '(:a :b :c) :d)
+
+; rich set of utilities for manipulating sequences
+
+(map #(* 5 %) [1 2 3])
+
+(reduce + '[1 2 3])
+
+(reverse [:a :b :c])
+
+(sort [1 58 12 23 4])
+
+(filter #(> % 5) [1 58 12 23 4])
+
+; ... many more
+
+; anything you can think of in terms of first and rest can become a seq
+
+(def whole-numbers (lazy-seq (cons 1 (map #(+ 1 %) whole-numbers))))
 
 ;}}}
   

@@ -7,6 +7,9 @@
     - Keywords
         - evaluate to themselves
         - similar to symbols in Ruby or interned strings in Java
+    - Symbols
+        - evaluated at run time
+        - but still a data type (evaluation can be prevented using quote or ')
 
 ### Collections ###
 
@@ -35,7 +38,15 @@
 ### Expressions ###
 
 - EVERYTHING is an expression (has a return value)
-- TODO: add more stuff here
+- All expressions follow the same basic form
+- 3 types of things can occupy the first position in an expression
+    - builtin/special-form
+    - macro
+    - function
+- Functions are the most common thing to work with and always follow the
+  evaluation rule of first evaluating arguments and then calling the function on
+  the results
+- Special forms and macros are for the exceptions
 
 ### Truthiness ###
 
@@ -45,18 +56,32 @@
 ### Collections 2 ###
 
 - indexed access happens via "get" or by calling the data structure itself
-
-### Sequences ###
-
-TODO: fill this in
+- more to come in sequences section but first we need to talk about functions
 
 ### Functions ###
 
-TODO: fill this in
+- First class values
+- Can named by binding to vars
+- Often define using the convenience macro defn
+- Overloadable by arity
+
+### Sequences ###
+
+- In the beginning car and cdr
+- Implemented in terms of concrete linked lists
+- Clojure abstracts this behind a sequence interface
+- Lots of things are seqable
+    - Clojure data structures
+    - Java collections
+    - XML
+    - You can make one for anything you think of in terms of first and rest
 
 ### Vars ###
 
-TODO: fill this in
+- Thread local storage
+- Can have root bindings (but don't have to)
+- Functions are stored in refs
+- Can be rebound dynamically using binding
 
 ### Refs and Transactions ###
 
