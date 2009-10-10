@@ -1,89 +1,154 @@
 ### Atoms ###
 
+- Atom = old school lisp term
+- Indivisible values
 - Most of these probably don't need much explanation
-- But a couple are unusual
+- But a few that are unusual
     - Ratios
-        - integer division results in a ratio (0 precision loss)
+        - that's a literal not division
+        - but integer division also results in a ratio (no precision loss)
     - Keywords
         - evaluate to themselves
         - similar to symbols in Ruby or interned strings in Java
+        - often used as keys in maps
     - Symbols
+        - generally used to refer to other things
         - evaluated at run time
         - but still a data type (evaluation can be prevented using quote or ')
 
 ### Collections ###
 
-- Quoting required for lists
-- Collections can contain any object
+- Atoms by themselves aren't that useful unless you're just doing math
 
-- All immutable - anything that "changes" these actually creates a new collection
-- ... but they're still fast because the copies share structure
+- Need ways to group and arrange them to do much of anything interesting
 
 - Lists
-    - fast access to the front
+    - quoting required for literals to prevent evaluation
+    - fast adding to the front
+    - order n access to the rest of the list
     - modified by adding to the front
 
 - Vectors
-    - fast indexed access to any location in the vector
     - fast adding to the end of the vector
+    - fast indexed access to any location in the vector
 
 - Maps
     - key value pairs
+    - both key and value can be anything including complex data types
     - fast indexed access by keys
 
 - Sets
     - collections of unique values
     - mostly used to test for membership (ie you have a set of x is y in it)
 
+- Overview
+    - Immutability
+        - All immutable - anything that "changes" these actually creates a new collection
+        - ... but they're still fast because the copies share structure
+    - Clojure is different from most Lisp in that it provides literal
+      representations for all of these
+
 ### Expressions ###
 
+- Data types are fine, but how do you actually do anything with them?
+
 - EVERYTHING is an expression (has a return value)
-- All expressions follow the same basic form
+- All expressions follow the same basic form - (fn/macro/sepcial arg1 arg2 ...)
 - 3 types of things can occupy the first position in an expression
-    - builtin/special-form
-    - macro
     - function
-- Functions are the most common thing to work with and always follow the
-  evaluation rule of first evaluating arguments and then calling the function on
-  the results
-- Special forms and macros are for the exceptions
+    - builtin/special-form - 13 + 3 interop
+    - macro
+- Functions
+    - most common
+    - evaluation rule - first evaluate arguments then call the funtion on results
+- Special forms and macros are for the exceptions (eg "if", "and")
+    - can delay or prevent evaluation
 
 ### Truthiness ###
 
+- Before we get too far lets talk just a little bit about truth in conditionals.
+
 - nil and false are considered false in conditionals everything else is true (same as Ruby)
+- Only reason for false is for interop
 - Here are some examples
 
 ### Collections 2 ###
 
-- indexed access happens via "get" or by calling the data structure itself
-- more to come in sequences section but first we need to talk about functions
+In talking about collections before I just described what they look like and
+some of their properties. I didn't really cover how to access or manipulate
+them at all (that would have required expressions).
+
+- Access (2 ways + 1 extra for maps)
+    - via get
+    - via calling data structure
+        - maps, vectors, and sets can all be thought of as functions
+    - via calling key on map
+
+Of course getting things out of collecions is just one thing you'll want to do
+with them but we'll cover more later.
+
+### Vars ###
+
+Up until now we haven't really talked about how you might store a value for
+later use. Even though Clojure emphasises functional programming with immutable
+data it's practical too and provides support for shared and even mutable data
+through its reference types.
+
+Vars are the most common of the reference types. In fact we've already seen
+them in action. Functions and macros are stored in vars (that's why we're
+covering them first) and that's why we're covering them first.
+
+Here's what you need to know about vars:
+
+- Thread local 
+- Name spaces map symbols to vars
+- Can have root bindings (but don't have to)
+- Can be rebound dynamically using binding
 
 ### Functions ###
 
+Now that we know how to store values for later use in Clojure, I want to zero
+in on one particular type of value you might want to store, functions. In fact
+functions are probably the most common thing stored in vars.
+
 - First class values
-- Can named by binding to vars
+- Can be stored in vars bound to symbols
+- Syntax - (fn arg-vector body)
 - Often define using the convenience macro defn
 - Overloadable by arity
 
+In Clojure your programs are mostly composed of functions.
+
 ### Sequences ###
 
-- In the beginning car and cdr
-- Implemented in terms of concrete linked lists
-- Clojure abstracts this behind a sequence interface
+Now that we've talked about functions I want to circle back and look at
+collections a bit more. Specifically the sequence interface. We talked a little
+bit about indexed access earlier but obviously there has to be more to
+collections than that. We need ways to construct collections and perform
+complex operations on them.
+
+So how do we do these things?
+
+In olden times Lisp provided a rich set of libraries for manipulating lists
+defined in terms of cons cells accessed using car (first) and cdr (rest). This
+was all well and good until you needed to manipulate something other than
+lists.  Then you lost your beautiful library.
+
+Clojure solves this problem by defining utilities for manipulating sequences in
+terms of a sequence interface rather than a concrete data structure. That way
+anything implementing the sequence can be manipulated by Clojure rich set of
+sequence functions.
+
 - Lots of things are seqable
     - Clojure data structures
     - Java collections
     - XML
     - You can make one for anything you think of in terms of first and rest
 
-### Vars ###
-
-- Thread local storage
-- Can have root bindings (but don't have to)
-- Functions are stored in refs
-- Can be rebound dynamically using binding
-
 ### Refs and Transactions ###
+
+Before we get to the demo app there's one more reference type I want to cover,
+refs which are used for coordinated state changes.
 
 - Immutability is nice and all, but what if you really need to share state between threads?
 - This is where Clojure's STM comes in
@@ -110,9 +175,6 @@
 - So here's a little "Hello world" Compojure app
 - We're going to incrementally turn it into a chat app
 
-- Setup namespace - namespaces map symbols to vars - avoid collisions and
-  Common Lisp style macros possible in a Lisp 1
-
 - ns
     - macro
     - creates a namespace
@@ -120,6 +182,7 @@
     - prevent name collisions
     - use imports symbol var mappings from other namespaces
     - should use "include" to only pull in only what's needed
+    - allow common lisp style macros in a lisp 1
 
 - defroutes
     - macro
@@ -142,7 +205,7 @@
 - What else do we need to turn this into a web chat app?
     - A list of messages and something to render them right?
     - But how do we deal with multiple threads modifying the message list at the same time?
-    - We'll use a ref containing and transactions to modify the vector.
+    - We'll use a ref containing a vector and use transactions to modify it.
 
 - So here are the ...
     - ref definition
@@ -188,7 +251,3 @@
     - function
     - takes n number of params as body
     - wraps them in some typical html stuff
-
-### Compojure Demo - 7 ###
-
-- TODO: if I have time for Ajax crap

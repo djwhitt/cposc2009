@@ -15,10 +15,6 @@
 
 123        ; integer
 
-:key       ; keyword
-
-5/72       ; ratio
-
 4.2        ; float
 
 nil        ; nil
@@ -26,6 +22,10 @@ nil        ; nil
 true       ; true
 
 false      ; false
+
+5/72       ; ratio
+
+:key       ; keyword
 
 a          ; symbol
 
@@ -291,17 +291,6 @@ messages
   (layout
     (render-messages msgs)
     (render-message-form)))
-
-;}}}
-
-;{{{ 17 - Compojure Demo Part 7 - Adding some ajax
-
-(defroutes cljchat
-  (GET  "/*" (or (serve-file (params :*)) :next))
-  (GET  "/"  (view))
-  (POST "/"  (post-message (params :message))))
-
-; TODO: add some fancy ajax stuff
 
 ;}}}
 
