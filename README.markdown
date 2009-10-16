@@ -1,6 +1,8 @@
-# CPOSC 2009 Presentation Material #
+CPOSC 2009 Presentation Material
+================================
 
-## References ##
+References 
+----------
 
 ### Docs ###
 
