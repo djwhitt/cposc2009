@@ -296,9 +296,24 @@ messages
 
 ;{{{ Compojure Demo - Final Code
 
-; TODO: make sure this matches the above steps
+(ns com.djwhitt.cljchat
+  (:use [clojure.contrib.pprint])
+  (:use [compojure]))
 
-(def messages (ref ["Test message 1" "Test message 2"]))
+(def messages (ref ["test message 1" "test message 2"]))
+
+(defn render-messages [msgs]
+  (map #(vector :p %) msgs))
+
+(defn render-message-form []
+  (form-to [:post "/"]
+    (text-field {:size 50} :message)
+    (submit-button "Post")))
+
+(defn post-message [msgs msg]
+  (do
+    (dosync (commute msgs conj msg))
+    (redirect-to "/")))
 
 (defn layout [& body]
   (html
@@ -310,28 +325,14 @@ messages
       [:h1 "Welcome to Clojure Chat"]
       body]]))
 
-(defn render-messages []
-  (map (fn [message] [:p message]) @messages))
-
-(defn render-message-form []
-  (form-to [:post "/"]
-    (text-field {:size 50} :message)
-    (submit-button "Post")))
-
-(defn view []
+(defn view [msgs]
   (layout
-    (render-messages)
+    (render-messages msgs)
     (render-message-form)))
 
-(defn post-message [message]
-  (do
-    (dosync (commute messages conj message))
-    (redirect-to "/")))
-
 (defroutes cljchat
-  (GET  "/*" (or (serve-file (params :*)) :next))
-  (GET  "/"  (view))
-  (POST "/"  (post-message (params :message))))
+  (GET  "/"  (view @messages))
+  (POST "/"  (post-message messages (params :message))))
 
 (defn run []
   (run-server {:port 8080}
