@@ -4,6 +4,12 @@ CPOSC 2009 Presentation Material
 References 
 ----------
 
+### Source ###
+
+- [Clojure](http://github.com/richhickey/clojure-contrib)
+- [Clojure Contrib](http://github.com/richhickey/clojure-contrib)
+- [Compojure](http://github.com/weavejester/compojure)
+
 ### Docs ###
 
 - [Clojure Website](http://clojure.org/)
@@ -25,6 +31,5 @@ References
 
 ### Compojure ###
 
-- [Project Site](http://github.com/weavejester/compojure)
 - [Wiki](http://en.wikibooks.org/wiki/Compojure)
 - [Eric Lavigne's Blog](http://ericlavigne.wordpress.com/)
