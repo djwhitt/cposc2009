@@ -91,7 +91,7 @@ with them but we'll cover more later.
 
 Up until now we haven't really talked about how you might store a value for
 later use. Even though Clojure emphasises functional programming with immutable
-data it's practical too and provides support for shared and even mutable data
+data, it's practical and provides support for shared and even mutable data
 through its reference types.
 
 Vars are the most common of the reference types. In fact we've already seen
