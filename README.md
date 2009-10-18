@@ -45,7 +45,7 @@ Editors and IDEs
 - [Clojure with Emacs and Slime/Swank on Ubuntu](http://riddell.us/tutorial/slime_swank/slime_swank.html)
 
 Note: The Slime/Swank setup guide above looked good, but I haven't tried it
-myself. If you use Emacs and no of a better one let me know.
+myself. If you use Emacs and know of a better one let me know.
 
 ### Vim ###
 
